@@ -1,9 +1,10 @@
 import React, { useState } from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
+import Navbar from './components/Navbar';
 import Register from './components/Register';
 import Login from './components/Login';
-import Tasks from './components/Tasks';
-import Navbar from './components/Navbar';
+import TaskList from './components/TaskList';
+import AddTask from './components/AddTask';
 
 function App() {
   const [isAuthenticated, setIsAuthenticated] = useState(!!localStorage.getItem('token'));
@@ -14,23 +15,23 @@ function App() {
     alert('Logged out successfully');
   };
 
-  const renderLayout = (Component) => (
-    <div className="App">
-      <Navbar isAuthenticated={isAuthenticated} onLogout={handleLogout} />
-      <div className="content-wrapper">
-        <Component />
-      </div>
-    </div>
-  );
-
   return (
     <Router>
-      <Routes>
-        <Route path="/" element={<Navigate to="/register" />} />
-        <Route path="/register" element={renderLayout(Register)} />
-        <Route path="/login" element={renderLayout(Login)} />
-        {isAuthenticated && <Route path="/tasks" element={renderLayout(Tasks)} />}
-      </Routes>
+      <div className="App">
+        <Navbar isAuthenticated={isAuthenticated} onLogout={handleLogout} />
+        <Routes>
+          <Route path="/register" element={<Register />} />
+          <Route path="/login" element={<Login />} />
+          <Route
+            path="/tasks"
+            element={isAuthenticated ? <TaskList /> : <Navigate to="/login" replace />}
+          />
+          <Route
+            path="/tasks/new"
+            element={isAuthenticated ? <AddTask /> : <Navigate to="/login" replace />}
+          />
+        </Routes>
+      </div>
     </Router>
   );
 }
