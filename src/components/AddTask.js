@@ -38,15 +38,17 @@ function AddTask() {
     e.preventDefault();
     try {
       const token = localStorage.getItem('token');
-      await axios.post('http://localhost:5000/tasks', formData, {
+      const response = await axios.post('http://localhost:5000/tasks', formData, {
         headers: { Authorization: `Bearer ${token}` },
       });
-      navigate('/tasks'); // Przekierowanie do listy zadań
+      console.log('Task added:', response.data); // Dodaj logowanie, aby sprawdzić dane
+      navigate('/tasks');
     } catch (error) {
       setError('Failed to add task');
       console.error(error);
     }
   };
+  
   
 
   return (
