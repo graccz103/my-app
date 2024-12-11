@@ -30,13 +30,16 @@ function TaskList() {
       <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
         {tasks.map((task) => (
           <div key={task._id} className="bg-white shadow-md rounded-lg p-4">
-            <h3 className="text-xl font-semibold">{task.title}</h3>
-            <p className="text-gray-700">{task.description}</p>
-            <p className="text-gray-500">Status: {task.status}</p>
-            {task.dueDate && (
-              <p className="text-gray-500">Due: {new Date(task.dueDate).toLocaleDateString()}</p>
-            )}
-          </div>
+          <h3 className="text-xl font-semibold">{task.title}</h3>
+          <p className="text-gray-700">{task.description}</p>
+          <p className="text-gray-500">Status: {task.status}</p>
+          {task.dueDate && (
+            <p className="text-gray-500">Due: {new Date(task.dueDate).toLocaleDateString()}</p>
+          )}
+          {task.assignedTo && (
+            <p className="text-gray-500">Assigned to: {task.assignedTo.username} ({task.assignedTo.email})</p>
+          )}
+        </div>
         ))}
       </div>
       <Link

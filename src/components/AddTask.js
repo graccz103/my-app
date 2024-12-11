@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
 
@@ -8,9 +8,27 @@ function AddTask() {
     description: '',
     status: 'To Do',
     dueDate: '',
+    assignedTo: ''
   });
+  const [users, setUsers] = useState([]);
   const [error, setError] = useState('');
   const navigate = useNavigate();
+
+  useEffect(() => {
+    const fetchUsers = async () => {
+      try {
+        const token = localStorage.getItem('token');
+        const response = await axios.get('http://localhost:5000/users', {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+        setUsers(response.data);
+      } catch (error) {
+        console.error('Failed to fetch users', error);
+      }
+    };
+
+    fetchUsers();
+  }, []);
 
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
@@ -29,6 +47,7 @@ function AddTask() {
       console.error(error);
     }
   };
+  
 
   return (
     <div className="p-8">
@@ -66,6 +85,22 @@ function AddTask() {
             onChange={handleChange}
             className="w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:ring focus:ring-blue-300 focus:outline-none"
           />
+        </div>
+        <div>
+          <label className="block text-sm font-medium text-gray-600 mb-1">Assign To</label>
+          <select
+            name="assignedTo"
+            value={formData.assignedTo}
+            onChange={handleChange}
+            className="w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:ring focus:ring-blue-300 focus:outline-none"
+          >
+            <option value="">Select a user</option>
+            {users.map((user) => (
+              <option key={user._id} value={user._id}>
+                {user.username} ({user.email})
+              </option>
+            ))}
+          </select>
         </div>
         <button
           type="submit"
