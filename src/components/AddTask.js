@@ -12,22 +12,34 @@ function AddTask() {
   });
   const [users, setUsers] = useState([]);
   const [error, setError] = useState('');
+  const [group, setGroup] = useState(null); // Informacja o grupie użytkownika
   const navigate = useNavigate();
 
   useEffect(() => {
-    const fetchUsers = async () => {
+    const fetchGroupAndUsers = async () => {
       try {
         const token = localStorage.getItem('token');
-        const response = await axios.get('http://localhost:5000/users', {
+        
+        // Pobierz informacje o użytkowniku i grupie
+        const userResponse = await axios.get('http://localhost:5000/me', {
           headers: { Authorization: `Bearer ${token}` },
         });
-        setUsers(response.data);
+        setGroup(userResponse.data.groupId);
+
+        // Pobierz użytkowników w grupie, jeśli użytkownik jest w grupie
+        if (userResponse.data.groupId) {
+          const usersResponse = await axios.get('http://localhost:5000/users', {
+            headers: { Authorization: `Bearer ${token}` },
+          });
+          setUsers(usersResponse.data);
+        }
       } catch (error) {
-        console.error('Failed to fetch users', error);
+        console.error('Failed to fetch group and users', error);
+        setError('Failed to fetch group and users');
       }
     };
 
-    fetchUsers();
+    fetchGroupAndUsers();
   }, []);
 
   const handleChange = (e) => {
@@ -36,12 +48,16 @@ function AddTask() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    if (!group) {
+      setError('You must be part of a group to create a task');
+      return;
+    }
     try {
       const token = localStorage.getItem('token');
       const response = await axios.post('http://localhost:5000/tasks', formData, {
         headers: { Authorization: `Bearer ${token}` },
       });
-      console.log('Task added:', response.data); // Dodaj logowanie, aby sprawdzić dane
+      console.log('Task added:', response.data);
       navigate('/tasks');
     } catch (error) {
       setError('Failed to add task');
@@ -49,7 +65,9 @@ function AddTask() {
     }
   };
 
-
+  if (!group) {
+    return <p className="p-8 text-red-600">You must be part of a group to create tasks.</p>;
+  }
 
   return (
     <div className="p-8">
@@ -104,7 +122,6 @@ function AddTask() {
             ))}
           </select>
         </div>
-
         <button
           type="submit"
           className="mt-4 bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700"
