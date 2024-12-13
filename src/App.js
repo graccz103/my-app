@@ -8,6 +8,7 @@ import AddTask from './components/AddTask';
 import CreateGroup from './components/CreateGroup';
 import EditGroup from './components/EditGroup';
 import GroupsPage from './components/GroupsPage';
+import TaskDetails from './components/TaskDetails';
 
 function App() {
   const [isAuthenticated, setIsAuthenticated] = useState(!!localStorage.getItem('token'));
@@ -44,6 +45,10 @@ function App() {
           <Route
             path="/groups"
             element={isAuthenticated ? <GroupsPage /> : <Navigate to="/login" replace />}
+          />
+          <Route
+            path="/tasks/:taskId"
+            element={isAuthenticated ? <TaskDetails /> : <Navigate to="/login" replace />}
           />
         </Routes>
       </div>

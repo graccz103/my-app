@@ -1,11 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 
 function TaskList() {
   const [tasks, setTasks] = useState([]);
   const [group, setGroup] = useState(null);
   const [error, setError] = useState('');
+  const navigate = useNavigate();
 
   useEffect(() => {
     const fetchTasksAndGroup = async () => {
@@ -35,6 +36,26 @@ function TaskList() {
     fetchTasksAndGroup();
   }, []);
 
+  const handleTaskClick = (taskId) => {
+    navigate(`/tasks/${taskId}`);
+  };
+
+  // Funkcja do określenia klasy koloru w zależności od statusu
+  const getStatusColorClass = (status) => {
+    switch (status) {
+      case 'To Do':
+        return 'bg-red-100 border-red-500';
+      case 'In Progress':
+        return 'bg-orange-100 border-orange-500';
+      case 'In Review':
+        return 'bg-blue-100 border-blue-500';
+      case 'Done':
+        return 'bg-green-100 border-green-500';
+      default:
+        return 'bg-gray-100 border-gray-500';
+    }
+  };
+
   return (
     <div className="p-8">
       <h2 className="text-2xl font-bold mb-6">Group Tasks</h2>
@@ -54,7 +75,13 @@ function TaskList() {
           </div>
           <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
             {tasks.map((task) => (
-              <div key={task._id} className="bg-white shadow-md rounded-lg p-4">
+              <div
+                key={task._id}
+                className={`shadow-md rounded-lg p-4 border-l-4 hover:scale-105 hover:shadow-xl transition-transform duration-200 cursor-pointer ${getStatusColorClass(
+                  task.status
+                )}`}
+                onClick={() => handleTaskClick(task._id)}
+              >
                 <h3 className="text-xl font-semibold">{task.title}</h3>
                 <p className="text-gray-700">{task.description}</p>
                 <p className="text-gray-500">Status: {task.status}</p>

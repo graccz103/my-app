@@ -19,16 +19,15 @@ function AddTask() {
     const fetchGroupAndUsers = async () => {
       try {
         const token = localStorage.getItem('token');
-        
-        // Pobierz informacje o użytkowniku i grupie
         const userResponse = await axios.get('http://localhost:5000/me', {
           headers: { Authorization: `Bearer ${token}` },
         });
-        setGroup(userResponse.data.groupId);
-
-        // Pobierz użytkowników w grupie, jeśli użytkownik jest w grupie
-        if (userResponse.data.groupId) {
-          const usersResponse = await axios.get('http://localhost:5000/users', {
+    
+        const groupId = userResponse.data.groupId?._id || userResponse.data.groupId;
+        setGroup(groupId);
+    
+        if (groupId) {
+          const usersResponse = await axios.get(`http://localhost:5000/groups/${groupId}/members`, {
             headers: { Authorization: `Bearer ${token}` },
           });
           setUsers(usersResponse.data);
@@ -38,6 +37,7 @@ function AddTask() {
         setError('Failed to fetch group and users');
       }
     };
+    
 
     fetchGroupAndUsers();
   }, []);
