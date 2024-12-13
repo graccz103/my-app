@@ -5,6 +5,7 @@ import axios from 'axios';
 function TaskDetails() {
   const { taskId } = useParams();
   const [task, setTask] = useState(null);
+  const [groupMembers, setGroupMembers] = useState([]); // Członkowie grupy
   const [error, setError] = useState('');
   const navigate = useNavigate();
 
@@ -12,12 +13,28 @@ function TaskDetails() {
     const fetchTaskDetails = async () => {
       try {
         const token = localStorage.getItem('token');
-        const response = await axios.get(`http://localhost:5000/tasks/${taskId}`, {
-          headers: { Authorization: `Bearer ${token}` },
-        });
-        setTask(response.data);
+        const [taskResponse, groupResponse] = await Promise.all([
+          axios.get(`http://localhost:5000/tasks/${taskId}`, {
+            headers: { Authorization: `Bearer ${token}` },
+          }),
+          axios.get('http://localhost:5000/me', {
+            headers: { Authorization: `Bearer ${token}` },
+          }),
+        ]);
+
+        setTask(taskResponse.data);
+
+        const groupId = groupResponse.data.groupId?._id;
+        if (groupId) {
+          const membersResponse = await axios.get(`http://localhost:5000/groups/${groupId}/members`, {
+            headers: { Authorization: `Bearer ${token}` },
+          });
+          setGroupMembers(membersResponse.data);
+        } else {
+          setError('You are not part of any group.');
+        }
       } catch (error) {
-        setError('Failed to fetch task details');
+        setError('Failed to fetch task details or group members');
         console.error(error);
       }
     };
@@ -27,10 +44,6 @@ function TaskDetails() {
 
   const handleChange = (e) => {
     setTask({ ...task, [e.target.name]: e.target.value });
-  };
-
-  const handleStatusChange = (e) => {
-    setTask({ ...task, status: e.target.value });
   };
 
   const handleSave = async () => {
@@ -44,6 +57,23 @@ function TaskDetails() {
     } catch (error) {
       setError('Failed to save task');
       console.error(error);
+    }
+  };
+
+  const handleDelete = async () => {
+    const confirmDelete = window.confirm('Are you sure you want to delete this task?');
+    if (confirmDelete) {
+      try {
+        const token = localStorage.getItem('token');
+        await axios.delete(`http://localhost:5000/tasks/${taskId}`, {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+        alert('Task deleted successfully');
+        navigate('/tasks');
+      } catch (error) {
+        setError('Failed to delete task');
+        console.error(error);
+      }
     }
   };
 
@@ -76,8 +106,9 @@ function TaskDetails() {
         <div>
           <label className="block text-sm font-medium text-gray-600 mb-1">Status</label>
           <select
+            name="status"
             value={task.status}
-            onChange={handleStatusChange}
+            onChange={handleChange}
             className="w-full px-4 py-2 border border-gray-300 rounded-lg"
           >
             <option value="To Do">To Do</option>
@@ -86,12 +117,46 @@ function TaskDetails() {
             <option value="Done">Done</option>
           </select>
         </div>
-        <button
-          onClick={handleSave}
-          className="mt-4 bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700"
-        >
-          Save Task
-        </button>
+        <div>
+          <label className="block text-sm font-medium text-gray-600 mb-1">Assigned To</label>
+          <select
+            name="assignedTo"
+            value={task.assignedTo || ''}
+            onChange={handleChange}
+            className="w-full px-4 py-2 border border-gray-300 rounded-lg"
+          >
+            <option value="">Unassigned</option>
+            {groupMembers.map((member) => (
+              <option key={member._id} value={member._id}>
+                {member.username} ({member.email})
+              </option>
+            ))}
+          </select>
+        </div>
+        <div>
+          <label className="block text-sm font-medium text-gray-600 mb-1">Due Date</label>
+          <input
+            type="date"
+            name="dueDate"
+            value={task.dueDate ? new Date(task.dueDate).toISOString().split('T')[0] : ''}
+            onChange={handleChange}
+            className="w-full px-4 py-2 border border-gray-300 rounded-lg"
+          />
+        </div>
+        <div className="flex gap-4">
+          <button
+            onClick={handleSave}
+            className="mt-4 bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700"
+          >
+            Save Task
+          </button>
+          <button
+            onClick={handleDelete}
+            className="mt-4 bg-red-600 text-white px-4 py-2 rounded hover:bg-red-700"
+          >
+            Delete Task
+          </button>
+        </div>
       </div>
     </div>
   );
