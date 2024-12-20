@@ -14,7 +14,7 @@ function GroupsPage() {
         const token = localStorage.getItem('token');
         
         // Pobranie danych użytkownika
-        const userResponse = await axios.get('http://localhost:5000/me', {
+        const userResponse = await axios.get('http://localhost:5000/users/me', {
           headers: { Authorization: `Bearer ${token}` },
         });
         setUser(userResponse.data);
@@ -40,7 +40,7 @@ function GroupsPage() {
         `http://localhost:5000/groups/${groupId}/join`,
         {},
         { headers: { Authorization: `Bearer ${token}` } }
-      );
+      );      
       alert('Successfully joined the group');
       navigate('/tasks');
     } catch (error) {
@@ -53,7 +53,7 @@ function GroupsPage() {
     try {
       const token = localStorage.getItem('token');
       await axios.post(
-        'http://localhost:5000/leave-group',
+        'http://localhost:5000/groups/leave',
         {},
         { headers: { Authorization: `Bearer ${token}` } }
       );

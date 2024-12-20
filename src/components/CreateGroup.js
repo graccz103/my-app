@@ -13,7 +13,8 @@ function CreateGroup() {
     const fetchAvailableUsers = async () => {
       try {
         const token = localStorage.getItem('token');
-        const response = await axios.get('http://localhost:5000/available-users', {
+        // Zaktualizowany endpoint dla dostępnych użytkowników
+        const response = await axios.get('http://localhost:5000/users/available', {
           headers: { Authorization: `Bearer ${token}` },
         });
         setAvailableUsers(response.data);
@@ -44,6 +45,7 @@ function CreateGroup() {
 
     try {
       const token = localStorage.getItem('token');
+      // Zaktualizowany endpoint dla tworzenia grupy
       await axios.post(
         'http://localhost:5000/groups',
         { name: groupName, memberIds: selectedUsers },

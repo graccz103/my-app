@@ -17,7 +17,7 @@ function TaskDetails() {
           axios.get(`http://localhost:5000/tasks/${taskId}`, {
             headers: { Authorization: `Bearer ${token}` },
           }),
-          axios.get('http://localhost:5000/me', {
+          axios.get('http://localhost:5000/users/me', { // Zmieniono endpoint
             headers: { Authorization: `Bearer ${token}` },
           }),
         ]);
