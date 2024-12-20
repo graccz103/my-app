@@ -1,11 +1,13 @@
 import React, { useState } from 'react';
 import axios from 'axios';
+import { useNavigate } from 'react-router-dom';
 
-function Login() {
+function Login({ setIsAuthenticated }) {
   const [loginData, setLoginData] = useState({
     email: '',
     password: ''
   });
+  const navigate = useNavigate();
 
   const handleChange = (e) => {
     setLoginData({ ...loginData, [e.target.name]: e.target.value });
@@ -14,13 +16,18 @@ function Login() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      const response = await axios.post('http://localhost:5000/login', loginData);
+      // Używaj poprawnego endpointu dla backendu
+      const response = await axios.post('http://localhost:5000/users/login', loginData);
       localStorage.setItem('token', response.data.token);
+      setIsAuthenticated(true); // Ustawienie autoryzacji
       alert('Logged in successfully');
+      navigate('/tasks'); // Przeniesienie na stronę z zadaniami
     } catch (error) {
-      console.error('Error logging in', error.response.data);
+      console.error('Error logging in', error.response?.data || error.message);
+      alert('Login failed. Please check your credentials.');
     }
   };
+  
 
   return (
     <div className="flex items-center justify-center min-h-screen bg-gray-100">

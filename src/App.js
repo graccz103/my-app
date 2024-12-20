@@ -25,7 +25,10 @@ function App() {
         <Navbar isAuthenticated={isAuthenticated} onLogout={handleLogout} />
         <Routes>
           <Route path="/register" element={<Register />} />
-          <Route path="/login" element={<Login />} />
+          <Route
+            path="/login"
+            element={<Login setIsAuthenticated={setIsAuthenticated} />}
+          />
           <Route
             path="/tasks"
             element={isAuthenticated ? <TaskList /> : <Navigate to="/login" replace />}
