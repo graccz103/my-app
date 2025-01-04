@@ -5,7 +5,7 @@ import axios from 'axios';
 function TaskDetails() {
   const { taskId } = useParams();
   const [task, setTask] = useState(null);
-  const [groupMembers, setGroupMembers] = useState([]); // Członkowie grupy
+  const [groupMembers, setGroupMembers] = useState([]);
   const [error, setError] = useState('');
   const navigate = useNavigate();
 
@@ -17,7 +17,7 @@ function TaskDetails() {
           axios.get(`http://localhost:5000/tasks/${taskId}`, {
             headers: { Authorization: `Bearer ${token}` },
           }),
-          axios.get('http://localhost:5000/users/me', { // Zmieniono endpoint
+          axios.get('http://localhost:5000/users/me', {
             headers: { Authorization: `Bearer ${token}` },
           }),
         ]);
@@ -143,6 +143,27 @@ function TaskDetails() {
             className="w-full px-4 py-2 border border-gray-300 rounded-lg"
           />
         </div>
+        <div>
+          <h3 className="text-sm font-medium text-gray-600">Attachments</h3>
+          {task.attachments && task.attachments.length > 0 ? (
+            <ul>
+              {task.attachments.map((file, index) => (
+                <li key={index}>
+                  <a
+                    href={`http://localhost:5000${file}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                  >
+                    {file.split('/').pop()} {/* Wyświetlanie tylko nazwy pliku */}
+                  </a>
+                </li>
+              ))}
+            </ul>
+          ) : (
+            <p>No attachments</p>
+          )}
+        </div>
+
         <div className="flex gap-4">
           <button
             onClick={handleSave}

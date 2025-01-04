@@ -53,6 +53,16 @@ function App() {
             path="/tasks/:taskId"
             element={isAuthenticated ? <TaskDetails /> : <Navigate to="/login" replace />}
           />
+          {/* Obsługa błędów dla ścieżek "/uploads" */}
+          <Route
+            path="/uploads/*"
+            element={<div className="text-red-600 p-4">File not found (404)</div>}
+          />
+          {/* Obsługa nieznanych ścieżek */}
+          <Route
+            path="*"
+            element={<div className="text-red-600 p-4">404 Not Found</div>}
+          />
         </Routes>
       </div>
     </Router>

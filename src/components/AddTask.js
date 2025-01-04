@@ -8,7 +8,8 @@ function AddTask() {
     description: '',
     status: 'To Do',
     dueDate: '',
-    assignedTo: ''
+    assignedTo: '',
+    attachments: [], // Dodanie pola attachments
   });
   const [users, setUsers] = useState([]);
   const [error, setError] = useState('');
@@ -19,16 +20,13 @@ function AddTask() {
     const fetchGroupAndUsers = async () => {
       try {
         const token = localStorage.getItem('token');
-        // Aktualizacja endpointu do pobierania danych użytkownika
         const userResponse = await axios.get('http://localhost:5000/users/me', {
           headers: { Authorization: `Bearer ${token}` },
         });
-    
         const groupId = userResponse.data.groupId?._id || userResponse.data.groupId;
         setGroup(groupId);
-    
+
         if (groupId) {
-          // Aktualizacja endpointu do pobierania członków grupy
           const usersResponse = await axios.get(`http://localhost:5000/groups/${groupId}/members`, {
             headers: { Authorization: `Bearer ${token}` },
           });
@@ -39,7 +37,6 @@ function AddTask() {
         setError('Failed to fetch group and users');
       }
     };
-    
 
     fetchGroupAndUsers();
   }, []);
@@ -50,23 +47,54 @@ function AddTask() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+  
     if (!group) {
       setError('You must be part of a group to create a task');
       return;
     }
+  
     try {
       const token = localStorage.getItem('token');
-      // Aktualizacja endpointu do tworzenia zadań
-      const response = await axios.post('http://localhost:5000/tasks', formData, {
+  
+      // 1. Utwórz nowe zadanie
+      const taskResponse = await axios.post('http://localhost:5000/tasks', formData, {
         headers: { Authorization: `Bearer ${token}` },
       });
-      console.log('Task added:', response.data);
+  
+      const taskId = taskResponse.data._id; // ID nowo utworzonego zadania
+  
+      // 2. Prześlij załączniki do zadania, jeśli istnieją
+      if (formData.attachments.length > 0) {
+        for (const file of formData.attachments) {
+          const fileData = new FormData();
+          fileData.append('file', file);
+  
+          await axios.post(`http://localhost:5000/tasks/upload/${taskId}`, fileData, {
+            headers: {
+              'Content-Type': 'multipart/form-data',
+              Authorization: `Bearer ${token}`,
+            },
+          });
+        }
+      }
+  
+      alert('Task added successfully');
       navigate('/tasks');
     } catch (error) {
       setError('Failed to add task');
       console.error(error);
     }
   };
+  
+  const handleFileUpload = (e) => {
+    const file = e.target.files[0];
+    setFormData((prev) => ({
+      ...prev,
+      attachments: [...prev.attachments, file],
+    }));
+  };
+  
+  
 
   if (!group) {
     return <p className="p-8 text-red-600">You must be part of a group to create tasks.</p>;
@@ -124,6 +152,26 @@ function AddTask() {
               </option>
             ))}
           </select>
+        </div>
+        <div>
+          <label className="block text-sm font-medium text-gray-600 mb-1">Attachments</label>
+          <input
+            type="file"
+            onChange={handleFileUpload}
+            className="w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:ring focus:ring-blue-300 focus:outline-none"
+          />
+{formData.attachments && (
+  <ul>
+    {formData.attachments.map((file, index) => (
+      <li key={index}>
+        <a href="#" target="_blank" rel="noopener noreferrer">
+          {file.name} {/* Użyj właściwości 'name' obiektu File */}
+        </a>
+      </li>
+    ))}
+  </ul>
+)}
+
         </div>
         <button
           type="submit"
