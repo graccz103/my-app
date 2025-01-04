@@ -41,11 +41,10 @@ function Task({ task, onClick, currentUserId }) {
       <p className="text-sm font-medium text-gray-600 mb-2">Assigned to:</p>
       <div className="flex items-center gap-2 mb-4">
         <span
-          className={`inline-block px-3 py-1 text-sm font-medium rounded-full ${
-            isAssignedToCurrentUser
+          className={`inline-block px-3 py-1 text-sm font-medium rounded-full ${isAssignedToCurrentUser
               ? 'bg-red-700 text-white'
               : 'bg-gray-200 text-gray-700'
-          }`}
+            }`}
         >
           {task.assignedTo?.username || 'Unassigned'}
         </span>
@@ -85,6 +84,8 @@ function Section({ status, tasks, onDropTask, onTaskClick, currentUserId }) {
 function TaskList() {
   const [tasks, setTasks] = useState([]);
   const [group, setGroup] = useState(null);
+  const [groupMembers, setGroupMembers] = useState([]);
+  const [filters, setFilters] = useState({ title: '', assignedTo: '', dueDate: '', createdBy: '' });
   const [error, setError] = useState('');
   const [currentUserId, setCurrentUserId] = useState(null);
   const navigate = useNavigate();
@@ -95,7 +96,7 @@ function TaskList() {
         const token = localStorage.getItem('token');
         if (!token) throw new Error('Token not found');
 
-        const userResponse = await axios.get('http://localhost:5000/users/me', { // Zmieniono endpoint
+        const userResponse = await axios.get('http://localhost:5000/users/me', {
           headers: { Authorization: `Bearer ${token}` },
         });
         setGroup(userResponse.data.groupId);
@@ -104,6 +105,13 @@ function TaskList() {
         if (!userResponse.data.groupId) {
           throw new Error('You are not part of any group');
         }
+
+        // Pobierz listę członków grupy z backendu
+        const groupMembersResponse = await axios.get(
+          `http://localhost:5000/groups/${userResponse.data.groupId._id}/members`,
+          { headers: { Authorization: `Bearer ${token}` } }
+        );
+        setGroupMembers(groupMembersResponse.data);
 
         const taskResponse = await axios.get('http://localhost:5000/tasks', {
           headers: { Authorization: `Bearer ${token}` },
@@ -117,6 +125,19 @@ function TaskList() {
 
     fetchTasksAndGroup();
   }, []);
+
+
+  const filterTasks = (tasks) => {
+    return tasks.filter((task) => {
+      const matchesTitle = task.title.toLowerCase().includes(filters.title.toLowerCase());
+      const matchesAssignedTo = !filters.assignedTo || task.assignedTo?._id === filters.assignedTo;
+      const matchesDueDate =
+        !filters.dueDate || new Date(task.dueDate) <= new Date(filters.dueDate); // Porównanie dat
+      const matchesCreatedBy = !filters.createdBy || task.createdBy?._id === filters.createdBy;
+      return matchesTitle && matchesAssignedTo && matchesDueDate && matchesCreatedBy;
+    });
+  };
+  
 
   const updateTaskStatus = async (taskId, newStatus) => {
     try {
@@ -142,10 +163,15 @@ function TaskList() {
   };
 
   const groupedTasks = {
-    'To Do': tasks.filter((task) => task.status === 'To Do'),
-    'In Progress': tasks.filter((task) => task.status === 'In Progress'),
-    'In Review': tasks.filter((task) => task.status === 'In Review'),
-    'Done': tasks.filter((task) => task.status === 'Done'),
+    'To Do': filterTasks(tasks.filter((task) => task.status === 'To Do')),
+    'In Progress': filterTasks(tasks.filter((task) => task.status === 'In Progress')),
+    'In Review': filterTasks(tasks.filter((task) => task.status === 'In Review')),
+    'Done': filterTasks(tasks.filter((task) => task.status === 'Done')),
+  };
+
+  const handleFilterChange = (e) => {
+    const { name, value } = e.target;
+    setFilters((prev) => ({ ...prev, [name]: value }));
   };
 
   return (
@@ -166,6 +192,50 @@ function TaskList() {
                 Manage Groups
               </Link>
             </div>
+            <div className="mb-6 grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
+              <input
+                type="text"
+                name="title"
+                value={filters.title}
+                onChange={handleFilterChange}
+                placeholder="Search by Title"
+                className="border rounded p-2"
+              />
+              <select
+                name="assignedTo"
+                value={filters.assignedTo}
+                onChange={handleFilterChange}
+                className="border rounded p-2"
+              >
+                <option value="">Filter by Assigned To</option>
+                {groupMembers.map((member) => (
+                  <option key={member._id} value={member._id}>
+                    {member.username || member.email}
+                  </option>
+                ))}
+              </select>
+              <input
+                type="date"
+                name="dueDate"
+                value={filters.dueDate}
+                onChange={handleFilterChange}
+                className="border rounded p-2"
+              />
+              <select
+                name="createdBy"
+                value={filters.createdBy}
+                onChange={handleFilterChange}
+                className="border rounded p-2"
+              >
+                <option value="">Filter by Created By</option>
+                {groupMembers.map((member) => (
+                  <option key={member._id} value={member._id}>
+                    {member.username || member.email}
+                  </option>
+                ))}
+              </select>
+            </div>
+
             {Object.keys(groupedTasks).map((status) => (
               <Section
                 key={status}
