@@ -19,7 +19,8 @@ function AddTask() {
     const fetchGroupAndUsers = async () => {
       try {
         const token = localStorage.getItem('token');
-        const userResponse = await axios.get('http://localhost:5000/me', {
+        // Aktualizacja endpointu do pobierania danych użytkownika
+        const userResponse = await axios.get('http://localhost:5000/users/me', {
           headers: { Authorization: `Bearer ${token}` },
         });
     
@@ -27,6 +28,7 @@ function AddTask() {
         setGroup(groupId);
     
         if (groupId) {
+          // Aktualizacja endpointu do pobierania członków grupy
           const usersResponse = await axios.get(`http://localhost:5000/groups/${groupId}/members`, {
             headers: { Authorization: `Bearer ${token}` },
           });
@@ -54,6 +56,7 @@ function AddTask() {
     }
     try {
       const token = localStorage.getItem('token');
+      // Aktualizacja endpointu do tworzenia zadań
       const response = await axios.post('http://localhost:5000/tasks', formData, {
         headers: { Authorization: `Bearer ${token}` },
       });

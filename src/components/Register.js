@@ -17,7 +17,7 @@ function Register() {
     e.preventDefault();
     try {
       setError(''); // Resetuj błąd przed wysłaniem
-      await axios.post('http://localhost:5000/register', userData);
+      await axios.post('http://localhost:5000/users/register', userData); // Zaktualizowana ścieżka
       alert('User registered successfully');
     } catch (error) {
       if (error.response && error.response.data.message) {

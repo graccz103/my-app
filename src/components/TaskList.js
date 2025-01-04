@@ -27,7 +27,6 @@ function Task({ task, onClick, currentUserId }) {
     item: { id: task._id },
   }));
 
-  // Sprawdzenie, czy zadanie jest przypisane do aktualnie zalogowanego użytkownika
   const isAssignedToCurrentUser = task.assignedTo?._id === currentUserId;
 
   return (
@@ -44,8 +43,8 @@ function Task({ task, onClick, currentUserId }) {
         <span
           className={`inline-block px-3 py-1 text-sm font-medium rounded-full ${
             isAssignedToCurrentUser
-              ? 'bg-red-700 text-white' // Ciemnoczerwone tło dla zalogowanego użytkownika
-              : 'bg-gray-200 text-gray-700' // Domyślne tło dla innych użytkowników
+              ? 'bg-red-700 text-white'
+              : 'bg-gray-200 text-gray-700'
           }`}
         >
           {task.assignedTo?.username || 'Unassigned'}
@@ -96,7 +95,7 @@ function TaskList() {
         const token = localStorage.getItem('token');
         if (!token) throw new Error('Token not found');
 
-        const userResponse = await axios.get('http://localhost:5000/me', {
+        const userResponse = await axios.get('http://localhost:5000/users/me', { // Zmieniono endpoint
           headers: { Authorization: `Bearer ${token}` },
         });
         setGroup(userResponse.data.groupId);
