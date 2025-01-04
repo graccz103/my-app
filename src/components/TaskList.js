@@ -131,11 +131,13 @@ function TaskList() {
     return tasks.filter((task) => {
       const matchesTitle = task.title.toLowerCase().includes(filters.title.toLowerCase());
       const matchesAssignedTo = !filters.assignedTo || task.assignedTo?._id === filters.assignedTo;
-      const matchesDueDate = !filters.dueDate || new Date(task.dueDate).toISOString().split('T')[0] === filters.dueDate;
+      const matchesDueDate =
+        !filters.dueDate || new Date(task.dueDate) <= new Date(filters.dueDate); // Porównanie dat
       const matchesCreatedBy = !filters.createdBy || task.createdBy?._id === filters.createdBy;
       return matchesTitle && matchesAssignedTo && matchesDueDate && matchesCreatedBy;
     });
   };
+  
 
   const updateTaskStatus = async (taskId, newStatus) => {
     try {
