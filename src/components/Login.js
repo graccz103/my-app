@@ -19,9 +19,9 @@ function Login({ setIsAuthenticated }) {
       // Używaj poprawnego endpointu dla backendu
       const response = await axios.post('http://localhost:5000/users/login', loginData);
       localStorage.setItem('token', response.data.token);
-      setIsAuthenticated(true); // Ustawienie autoryzacji
+      setIsAuthenticated(true);
       alert('Logged in successfully');
-      navigate('/tasks'); // Przeniesienie na stronę z zadaniami
+      navigate('/tasks');
     } catch (error) {
       console.error('Error logging in', error.response?.data || error.message);
       alert('Login failed. Please check your credentials.');

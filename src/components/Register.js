@@ -16,12 +16,12 @@ function Register() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      setError(''); // Resetuj błąd przed wysłaniem
-      await axios.post('http://localhost:5000/users/register', userData); // Zaktualizowana ścieżka
+      setError('');
+      await axios.post('http://localhost:5000/users/register', userData); 
       alert('User registered successfully');
     } catch (error) {
       if (error.response && error.response.data.message) {
-        setError(error.response.data.message); // Ustaw komunikat błędu z backendu
+        setError(error.response.data.message); 
       } else {
         setError('An unexpected error occurred');
       }

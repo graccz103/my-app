@@ -154,7 +154,7 @@ function TaskDetails() {
                     target="_blank"
                     rel="noopener noreferrer"
                   >
-                    {file.split('/').pop()} {/* Wyświetlanie tylko nazwy pliku */}
+                    {file.split('/').pop()} 
                   </a>
                 </li>
               ))}

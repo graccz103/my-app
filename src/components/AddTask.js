@@ -9,11 +9,11 @@ function AddTask() {
     status: 'To Do',
     dueDate: '',
     assignedTo: '',
-    attachments: [], // Dodanie pola attachments
+    attachments: [], 
   });
   const [users, setUsers] = useState([]);
   const [error, setError] = useState('');
-  const [group, setGroup] = useState(null); // Informacja o grupie użytkownika
+  const [group, setGroup] = useState(null); 
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -63,7 +63,7 @@ function AddTask() {
   
       const taskId = taskResponse.data._id; // ID nowo utworzonego zadania
   
-      // 2. Prześlij załączniki do zadania, jeśli istnieją
+      // Przesyła załączniki do zadania, jeśli dodane
       if (formData.attachments.length > 0) {
         for (const file of formData.attachments) {
           const fileData = new FormData();

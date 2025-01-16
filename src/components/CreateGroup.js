@@ -13,7 +13,6 @@ function CreateGroup() {
     const fetchAvailableUsers = async () => {
       try {
         const token = localStorage.getItem('token');
-        // Zaktualizowany endpoint dla dostępnych użytkowników
         const response = await axios.get('http://localhost:5000/users/available', {
           headers: { Authorization: `Bearer ${token}` },
         });
@@ -45,13 +44,13 @@ function CreateGroup() {
 
     try {
       const token = localStorage.getItem('token');
-      // Zaktualizowany endpoint dla tworzenia grupy
+      // tworzenie grupy
       await axios.post(
         'http://localhost:5000/groups',
         { name: groupName, memberIds: selectedUsers },
         { headers: { Authorization: `Bearer ${token}` } }
       );
-      navigate('/tasks'); // Przekierowanie po sukcesie
+      navigate('/tasks'); // Przekierowanie 
     } catch (error) {
       setError('Failed to create group');
       console.error(error);

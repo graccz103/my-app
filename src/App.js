@@ -61,7 +61,7 @@ function App() {
           {/* Obsługa nieznanych ścieżek */}
           <Route
             path="*"
-            element={<div className="text-red-600 p-4">404 Not Found</div>}
+            element={isAuthenticated ? <TaskList /> : <Navigate to="/login" replace />}
           />
         </Routes>
       </div>

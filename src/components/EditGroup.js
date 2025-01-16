@@ -22,7 +22,6 @@ function EditGroup() {
         setGroupDetails(groupResponse.data);
         setGroupName(groupResponse.data.name);
 
-        // Zaktualizowany endpoint dla dostępnych użytkowników
         const usersResponse = await axios.get('http://localhost:5000/users/available', {
           headers: { Authorization: `Bearer ${token}` },
         });
